@@ -1,0 +1,107 @@
+{% extends 'base.html' %}
+{% block titulo %} {% if es_edicion %} Editar {% else %} Registrar {% endif %} Empleado {% endblock %}
+
+{% block contenido %}
+<div class="row justify-content-center">
+    <div class="col-md-6">
+        <div class="card border-0 shadow-lg mt-3">
+            <div class="card-header bg-success text-white text-center py-3">
+                <h4 class="mb-0">
+                    <i class="bi bi-person-badge me-2"></i>
+                    {% if es_edicion %}Editar Colaborador{% else %}Nuevo Colaborador{% endif %}
+                </h4>
+            </div>
+            <div class="card-body p-4">
+                <form method="post">
+                    {% csrf_token %}
+                    {% if form.errors %}
+                        <div class="alert alert-danger">
+                            <strong>¡Atención!</strong>
+                            <ul>
+                            {% for field in form %}
+                                {% for error in field.errors %}
+                                    <li>{{ field.label }}: {{ error }}</li>
+                                {% endfor %}
+                            {% endfor %}
+                            </ul>
+                        </div>
+                    {% endif %}
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label class="form-label fw-bold">Usuario (RUT)</label>
+                            {{ form.username }}
+                            {% if not es_edicion %}<div class="form-text">Este será el login.</div>{% endif %}
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-bold text-primary">Asignar Rol</label>
+                            {{ form.grupo }}
+                        </div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label class="form-label">Nombre</label>
+                            {{ form.first_name }}
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Apellido</label>
+                            {{ form.last_name }}
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Correo Electrónico</label>
+                        {{ form.email }}
+                    </div>
+                    {% if es_edicion %}
+                    <div class="mb-3 form-check form-switch">
+                        {{ form.is_active }}
+                        <label class="form-check-label fw-bold text-secondary">¿Usuario Activo?</label>
+                    </div>
+                    {% endif %}
+                    <hr>
+                    {% if not es_edicion %}
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Contraseña</label>
+                            {{ form.password1 }} 
+                            <div class="form-text small">Mínimo 8 caracteres.</div>
+                        </div>
+                        <div class="mb-4">
+                            <label class="form-label fw-bold">Repetir Contraseña</label>
+                            {{ form.password2 }}
+                        </div>
+                    {% else %}
+                        <div class="alert alert-info py-2 small">
+                            <i class="bi bi-info-circle"></i> La contraseña no se edita aquí.
+                        </div>
+                    {% endif %}
+                    <div class="d-grid gap-2">
+                        <button type="submit" class="btn btn-success btn-lg">
+                            {% if es_edicion %}Guardar Cambios{% else %}Registrar Empleado{% endif %}
+                        </button>
+                        <a href="{% url 'lista_colaboradores' %}" class="btn btn-outline-secondary">Cancelar</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% if not es_edicion %}
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        const rutInput = document.getElementById("id_username");
+        if(rutInput) {
+            rutInput.placeholder = "12345678-9";
+            rutInput.addEventListener('input', function(e) {
+                let valor = e.target.value.replace(/[^0-9kK]/g, '');
+                if (valor.length > 1) {
+                    const cuerpo = valor.slice(0, -1);
+                    const dv = valor.slice(-1).toUpperCase();
+                    e.target.value = `${cuerpo}-${dv}`;
+                } else {
+                    e.target.value = valor;
+                }
+            });
+        }
+    });
+</script>
+{% endif %}
+{% endblock %}

@@ -1,0 +1,119 @@
+{% extends 'base.html' %}
+{% block titulo %} Historial de Movimientos {% endblock %}
+
+{% block contenido %}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h2 class="fw-bold mb-0 text-dark">Bitácora de Movimientos</h2>
+        <p class="text-muted small">Registro completo de auditoría.</p>
+    </div>
+    
+    <div class="d-flex gap-2">
+        <a href="{% url 'exportar_historial' %}" class="btn btn-success text-white shadow-sm rounded-pill px-4">
+            <i class="bi bi-file-earmark-spreadsheet me-2"></i>Descargar Excel
+        </a>
+    </div>
+</div>
+
+<div class="card border-0 shadow-sm mb-4">
+    <div class="card-body py-3">
+        <form method="get" class="d-flex gap-2">
+            <div class="input-group">
+                <span class="input-group-text bg-white border-end-0">
+                    <i class="bi bi-search text-muted"></i>
+                </span>
+                <input class="form-control border-start-0 ps-0" type="search" name="buscar" placeholder="Buscar por usuario, producto, tipo..." value="{{ request.GET.buscar|default:'' }}">
+                <button class="btn btn-dark" type="submit">Buscar</button>
+            </div>
+            {% if request.GET.buscar %}
+                <a href="{% url 'historial_movimientos' %}" class="btn btn-outline-secondary" title="Limpiar filtro">
+                    <i class="bi bi-x-lg"></i>
+                </a>
+            {% endif %}
+        </form>
+    </div>
+</div>
+
+<div class="card shadow-sm border-0 overflow-hidden">
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-striped align-middle mb-0">
+                <thead class="table-dark">
+                    <tr>
+                        <th class="ps-4">Fecha/Hora</th>
+                        <th>Tipo</th>
+                        <th>Producto</th>
+                        <th>Cant.</th>
+                        <th>Usuario</th>
+                        <th>Total ($)</th>
+                        <th style="min-width: 200px;">Detalle / Observación</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for m in movimientos %}
+                    <tr>
+                        <td class="ps-4 text-nowrap">
+                            <div class="fw-bold">{{ m.fecha|date:"d/m/Y" }}</div>
+                            <small class="text-muted">{{ m.fecha|date:"H:i" }}</small>
+                        </td>
+                        
+                        <td>
+                            {% if m.tipo == 'ENTRADA' %}
+                                <span class="badge bg-success rounded-pill px-3">ENTRADA</span>
+                            {% elif m.tipo == 'VENTA' %}
+                                <span class="badge bg-primary rounded-pill px-3">VENTA</span>
+                            {% elif m.tipo == 'MERMA' %}
+                                <span class="badge bg-danger rounded-pill px-3">MERMA</span>
+                            {% else %}
+                                <span class="badge bg-warning text-dark rounded-pill px-3">SALIDA</span>
+                            {% endif %}
+                        </td>
+                        
+                        <td class="fw-bold">{{ m.producto.nombre }}</td>
+                        
+                        <td>
+                            <span class="fw-bold">{{ m.cantidad }}</span> 
+                            <span class="small text-muted">{{ m.producto.get_unidad_medida_display }}</span>
+                        </td>
+                        
+                        <td>
+                            <div class="d-flex align-items-center">
+                                <div class="rounded-circle bg-secondary text-white d-flex justify-content-center align-items-center me-2" style="width: 25px; height: 25px; font-size: 0.7rem;">
+                                    {{ m.usuario.username|slice:":1"|upper }}
+                                </div>
+                                <small>{{ m.usuario.username }}</small>
+                            </div>
+                        </td>
+                        
+                        <td class="font-monospace text-dark fw-bold">${{ m.total_movimiento }}</td>
+                        
+                        <td>
+                            {% if "BAJA AUTOMÁTICA" in m.observacion or "Venció" in m.observacion %}
+                                <span class="badge bg-danger bg-opacity-10 text-danger border border-danger">
+                                    <i class="bi bi-clock-history me-1"></i> Vencido
+                                </span>
+                            {% elif m.observacion %}
+                                <span class="text-dark small fst-italic">
+                                    {{ m.observacion|truncatechars:50 }}
+                                </span>
+                            {% else %}
+                                <span class="text-muted small opacity-50">-</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="7" class="text-center py-5 text-muted bg-light">
+                            <i class="bi bi-clock-history display-4 d-block mb-3 opacity-25"></i>
+                            No hay movimientos registrados.
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+{% endblock %}

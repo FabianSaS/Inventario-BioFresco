@@ -1,0 +1,41 @@
+{% extends 'base.html' %}
+{% block titulo %} Panel Bodega {% endblock %}
+
+{% block contenido %}
+<div class="row justify-content-center mt-5">
+    <div class="col-md-8 text-center">
+        <h2 class="mb-4 fw-bold text-dark">Panel de Operaciones</h2>
+        
+        <div class="row g-4">
+            <div class="col-md-6">
+                <a href="{% url 'registrar_movimiento' %}" class="text-decoration-none">
+                    <div class="card h-100 shadow border-0 hover-scale bg-success text-white">
+                        <div class="card-body py-5">
+                            <i class="bi bi-upc-scan display-1 mb-3"></i>
+                            <h3 class="fw-bold">Registrar Movimiento</h3>
+                            <p class="mb-0 opacity-75">Entradas, Salidas y Mermas</p>
+                        </div>
+                    </div>
+                </a>
+            </div>
+
+            <div class="col-md-6">
+                <a href="{% url 'reporte_ubicaciones' %}" class="text-decoration-none">
+                    <div class="card h-100 shadow border-0 hover-scale bg-dark text-white">
+                        <div class="card-body py-5">
+                            <i class="bi bi-search display-1 mb-3"></i>
+                            <h3 class="fw-bold">Buscar Producto</h3>
+                            <p class="mb-0 opacity-75">Consultar stock y ubicación</p>
+                        </div>
+                    </div>
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .hover-scale { transition: transform 0.2s; }
+    .hover-scale:hover { transform: translateY(-5px); }
+</style>
+{% endblock %}

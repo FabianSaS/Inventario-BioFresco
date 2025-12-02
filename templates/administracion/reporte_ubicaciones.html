@@ -1,0 +1,118 @@
+{% extends 'base.html' %}
+{% block titulo %} Reporte de Ubicaciones {% endblock %}
+
+{% block contenido %}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h2 class="fw-bold mb-0 text-dark">Informe de Stock y Ubicaciones</h2>
+        <p class="text-muted small">Detalle físico de lotes activos en bodega.</p>
+    </div>
+    
+    <div>
+        <a href="{% url 'exportar_ubicaciones' %}" class="btn btn-success text-white shadow-sm rounded-pill px-4">
+            <i class="bi bi-file-earmark-spreadsheet me-2"></i>Descargar Excel
+        </a>
+    </div>
+</div>
+
+<div class="card border-0 shadow-sm mb-4">
+    <div class="card-body py-3">
+        <form method="get" class="d-flex gap-2">
+            <div class="input-group">
+                <span class="input-group-text bg-white border-end-0">
+                    <i class="bi bi-search text-muted"></i>
+                </span>
+                <input class="form-control border-start-0 ps-0" type="search" name="buscar" placeholder="Buscar por producto, lote, contenedor..." value="{{ request.GET.buscar|default:'' }}">
+                <button class="btn btn-dark" type="submit">Buscar</button>
+            </div>
+            {% if request.GET.buscar %}
+                <a href="{% url 'reporte_ubicaciones' %}" class="btn btn-outline-secondary" title="Limpiar">
+                    <i class="bi bi-x-lg"></i>
+                </a>
+            {% endif %}
+        </form>
+    </div>
+</div>
+
+<div class="card shadow-sm border-0 overflow-hidden">
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="table-dark">
+                    <tr>
+                        <th class="ps-4">Producto</th>
+                        <th>N° Lote</th>
+                        <th>Vencimiento</th>
+                        <th>Ubicación (Contenedor)</th>
+                        <th>Zona</th>
+                        <th class="text-end pe-4">Cantidad</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for lote in lotes %}
+                    <tr>
+                        <td class="ps-4 fw-bold text-success">{{ lote.producto.nombre }}</td>
+                        
+                        <td class="font-monospace">{{ lote.numero_lote }}</td>
+                        
+                        <td>
+                            {% if lote.fecha_vencimiento < hoy %}
+                                <span class="badge bg-danger">
+                                    <i class="bi bi-x-octagon-fill me-1"></i> VENCIDO ({{ lote.fecha_vencimiento|date:"d/m" }})
+                                </span>
+                            
+                            {% elif lote.fecha_vencimiento == hoy %}
+                                <span class="badge bg-danger border border-white shadow-sm">
+                                    <i class="bi bi-exclamation-circle-fill me-1"></i> VENCE HOY
+                                </span>
+
+                            {% elif lote.fecha_vencimiento <= proxima_semana %}
+                                <span class="badge bg-warning text-dark">
+                                    <i class="bi bi-clock-history me-1"></i> Próximo ({{ lote.fecha_vencimiento|date:"d/m" }})
+                                </span>
+
+                            {% else %}
+                                <span class="badge border border-secondary text-dark bg-light">
+                                    {{ lote.fecha_vencimiento|date:"d/m/Y" }}
+                                </span>
+                            {% endif %}
+                        </td>
+
+                        <td>
+                            {% if lote.contenedor %}
+                                <span class="badge bg-primary bg-opacity-10 text-primary border border-primary">
+                                    <i class="bi bi-box-seam me-1"></i> {{ lote.contenedor.nombre }}
+                                </span>
+                            {% else %}
+                                <span class="text-muted small">Sin asignar</span>
+                            {% endif %}
+                        </td>
+
+                        <td>
+                            {% if lote.contenedor %}
+                                <small class="text-muted fw-bold">{{ lote.contenedor.lugar.nombre }}</small>
+                            {% else %}
+                                -
+                            {% endif %}
+                        </td>
+
+                        <td class="text-end pe-4">
+                            <span class="fw-bold fs-5">{{ lote.cantidad }}</span>
+                            <small class="text-muted">{{ lote.producto.get_unidad_medida_display }}</small>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="6" class="text-center py-5 text-muted">
+                            <i class="bi bi-box2 display-4 opacity-25 mb-2 d-block"></i>
+                            No hay stock activo en la bodega.
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

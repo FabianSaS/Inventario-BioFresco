@@ -1,0 +1,20 @@
+*.log
+*.pot
+*.pyc
+__pycache__/
+db.sqlite3  <-- Déjalo por seguridad (safety net)
+media/
+staticfiles/
+
+
+*.sql
+*.dump
+
+venv/
+env/
+
+.vscode/
+.idea/
+
+.DS_Store
+Thumbs.db

@@ -1,0 +1,80 @@
+{% extends 'base.html' %}
+{% block titulo %} Producto {% endblock %}
+
+{% block contenido %}
+<div class="row justify-content-center">
+    <div class="col-md-8 col-lg-8">
+        <div class="card border-0 shadow">
+            <div class="card-header bg-success text-white">
+                <h4 class="mb-0">{% if es_edicion %}Editar{% else %}Crear{% endif %} Producto</h4>
+            </div>
+            <div class="card-body p-4">
+                
+                <form method="post">
+                    {% csrf_token %}
+                    
+                    <div class="row mb-3">
+                        <div class="col-md-4">
+                            <label class="form-label fw-bold">Código SKU</label>
+                            {{ form.codigo }}
+                        </div>
+                        <div class="col-md-8">
+                            <label class="form-label fw-bold">Nombre</label>
+                            {{ form.nombre }}
+                        </div>
+                    </div>
+
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label class="form-label fw-bold text-primary">Formato</label>
+                            {{ form.unidad_medida }}
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-bold text-primary">Origen</label>
+                            {{ form.tipo_origen }} </div>
+                    </div>
+
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label class="form-label text-muted">Costo (Neto)</label>
+                            <div class="input-group">
+                                <span class="input-group-text">$</span>
+                                {{ form.precio_costo }}
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label text-success fw-bold">Precio Venta</label>
+                            <div class="input-group">
+                                <span class="input-group-text">$</span>
+                                {{ form.precio_venta }}
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row mb-4 align-items-center">
+                        <div class="col-md-5"> 
+                            <label class="form-label">Alerta Stock Mínimo</label>
+                            {{ form.stock_minimo }}
+                        </div>
+                        
+                        <div class="col-md-6 offset-md-1">
+                            <div class="form-check form-switch mt-4 d-flex align-items-center">
+                                {{ form.gestiona_lotes }}
+                                <label class="form-check-label ms-2 fw-bold text-dark" for="{{ form.gestiona_lotes.id_for_label }}">
+                                    ¿Gestiona Caducidad?
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="d-grid gap-2 mt-5">
+                        <button type="submit" class="btn btn-success btn-lg">Guardar</button>
+                        <a href="{% url 'catalogo' %}" class="btn btn-outline-secondary">Cancelar</a>
+                    </div>
+                </form>
+
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

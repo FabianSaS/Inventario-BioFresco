@@ -1,0 +1,111 @@
+{% extends 'base.html' %}
+{% block titulo %} Panel Operativo {% endblock %}
+
+{% block contenido %}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h2 class="fw-bold text-dark mb-0">Control Operativo</h2>
+        <p class="text-muted small">Estado actual de la bodega e inventario.</p>
+    </div>
+    
+    <div>
+        <form action="{% url 'procesar_vencimientos' %}" method="post" onsubmit="return confirm('¿Estás seguro? Esto moverá todo lo vencido a MERMA automáticamente y dejará el stock en 0.');">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-warning fw-bold shadow-sm rounded-pill px-4 text-dark">
+                <i class="bi bi-arrow-repeat me-2"></i> Procesar Vencidos
+            </button>
+        </form>
+    </div>
+</div>
+
+<div class="row mb-4 g-3">
+    <div class="col-md-4">
+        <div class="card border-0 shadow-sm h-100 bg-white">
+            <div class="card-body text-center py-4 position-relative overflow-hidden">
+                <h1 class="display-4 fw-bold text-success mb-0">{{ movimientos_hoy }}</h1>
+                <span class="text-muted text-uppercase fw-bold small">Movimientos Hoy</span>
+                <i class="bi bi-activity position-absolute end-0 bottom-0 mb-n2 me-2 text-success opacity-10" style="font-size: 5rem;"></i>
+            </div>
+            <div class="card-footer bg-success py-1"></div>
+        </div>
+    </div>
+
+    <div class="col-md-4">
+        <div class="card border-0 shadow-sm h-100 bg-white">
+            <div class="card-body text-center py-4 position-relative overflow-hidden">
+                <h1 class="display-4 fw-bold text-dark mb-0">{{ ocupacion }}%</h1>
+                <span class="text-muted text-uppercase fw-bold small">Ocupación Bodega</span>
+                <div class="progress mt-3 mx-4" style="height: 6px;">
+                    <div class="progress-bar bg-dark" role="progressbar" style="width: {{ ocupacion }}%"></div>
+                </div>
+                <i class="bi bi-box-seam position-absolute end-0 bottom-0 mb-n2 me-2 text-dark opacity-10" style="font-size: 5rem;"></i>
+            </div>
+            <div class="card-footer bg-dark py-1"></div>
+        </div>
+    </div>
+
+    <div class="col-md-4">
+        <div class="card border-0 shadow-sm h-100 bg-white">
+            <div class="card-body text-center py-4 position-relative overflow-hidden">
+                <h1 class="display-4 fw-bold text-danger mb-0">{{ lotes_por_vencer }}</h1>
+                <span class="text-muted text-uppercase fw-bold small">Lotes por Vencer (7 días)</span>
+                <i class="bi bi-hourglass-split position-absolute end-0 bottom-0 mb-n2 me-2 text-danger opacity-10" style="font-size: 5rem;"></i>
+            </div>
+            <div class="card-footer bg-danger py-1"></div>
+        </div>
+    </div>
+</div>
+
+<div class="row g-4">
+    <div class="col-md-6">
+        <div class="card shadow-sm border-0 h-100">
+            <div class="card-header bg-white fw-bold py-3 border-bottom-0">
+                <i class="bi bi-lightning-charge-fill text-warning me-2"></i>Acciones
+            </div>
+            <div class="card-body pt-0">
+                <div class="d-grid gap-2">
+                    <a href="{% url 'catalogo' %}" class="btn btn-outline-dark text-start p-3 border-0 bg-light mb-2">
+                        <i class="bi bi-list-check me-3 fs-5"></i> Catálogo de Productos
+                    </a>
+                    
+                   <a href="{% url 'reporte_ubicaciones' %}" class="btn btn-outline-primary text-start p-3 border-0 bg-light mb-2">
+                        <i class="bi bi-geo-alt-fill me-3 fs-5"></i> Informe de Stock y Ubicaciones
+                    </a>
+                    <a href="{% url 'gestion_bodega' %}" class="btn btn-outline-dark text-start p-3 border-0 bg-light mb-2">
+                        <i class="bi bi-map me-3 fs-5"></i> Gestionar Mapa de Bodega
+                    </a>
+                    <a href="{% url 'gestionar_productos' %}" class="btn btn-outline-success text-start p-3 border-0 bg-light">
+                        <i class="bi bi-plus-circle me-3 fs-5"></i> Crear Nuevo Producto
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-6">
+        <div class="card shadow-sm border-0 h-100">
+            <div class="card-header bg-danger text-white fw-bold py-3">
+                <i class="bi bi-exclamation-triangle-fill me-2"></i> Alertas Críticas
+            </div>
+            <div class="card-body d-flex align-items-center justify-content-center">
+                {% if lotes_vencidos > 0 %}
+                    <div class="text-center w-100">
+                        <h2 class="text-danger fw-bold display-1 mb-0">{{ lotes_vencidos }}</h2>
+                        <p class="text-danger fw-bold mb-3">Lotes Vencidos en Bodega</p>
+                        <div class="alert alert-danger mb-0 text-start small">
+                            <i class="bi bi-info-circle me-1"></i> Estos productos siguen ocupando espacio físico. Use el botón "Procesar Vencidos" arriba para darlos de baja.
+                        </div>
+                    </div>
+                {% else %}
+                    <div class="text-center text-muted py-4">
+                        <i class="bi bi-check-circle-fill display-1 d-block mb-3 text-success opacity-50"></i>
+                        <h5 class="fw-bold">Todo en orden</h5>
+                        <p class="small">No hay productos vencidos pendientes de baja.</p>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

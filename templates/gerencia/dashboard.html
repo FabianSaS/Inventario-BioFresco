@@ -1,0 +1,204 @@
+{% extends 'base.html' %}
+
+{% block titulo %} Panel Gerencial {% endblock %}
+
+{% block contenido %}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h2 class="fw-bold mb-0" style="color: #1a1a1a;">Dashboard Gerencial</h2>
+        <p class="text-muted small">Resumen de operaciones en tiempo real.</p>
+    </div>
+    
+    <div>
+        <a href="{% url 'lista_colaboradores' %}" class="btn btn-outline-success rounded-pill me-2">
+            <i class="bi bi-people-fill me-1"></i> Gestionar Equipo
+        </a>
+    </div>
+</div>
+
+<div class="row mb-4 g-3">
+    
+    <div class="col-md-4">
+        <a href="{% url 'historial_movimientos' %}?buscar=VENTA" class="text-decoration-none text-dark">
+            <div class="card border-0 shadow-sm h-100 overflow-hidden hover-scale">
+                <div class="card-body position-relative">
+                    <h6 class="text-uppercase text-muted fw-bold small">Ventas Totales</h6>
+                    <h2 class="display-6 fw-bold text-success mb-0">${{ total_ventas }}</h2>
+                    
+                    <div class="mt-2 text-success small fw-bold">
+                        <i class="bi bi-eye-fill me-1"></i> Ver detalle
+                    </div>
+
+                    <i class="bi bi-graph-up position-absolute end-0 bottom-0 mb-2 me-3 text-success opacity-25" style="font-size: 3rem;"></i>
+                </div>
+                <div class="card-footer bg-success py-1"></div>
+            </div>
+        </a>
+    </div>
+    
+    <div class="col-md-4">
+        <a href="{% url 'historial_movimientos' %}?buscar=MERMA" class="text-decoration-none text-dark">
+            <div class="card border-0 shadow-sm h-100 overflow-hidden hover-scale">
+                <div class="card-body position-relative">
+                    <h6 class="text-uppercase text-muted fw-bold small">Pérdidas (Merma)</h6>
+                    <h2 class="display-6 fw-bold text-danger mb-0">${{ total_mermas }}</h2>
+                    
+                    <div class="mt-2 text-danger small fw-bold">
+                        <i class="bi bi-eye-fill me-1"></i> Ver detalle
+                    </div>
+
+                    <i class="bi bi-trash3 position-absolute end-0 bottom-0 mb-2 me-3 text-danger opacity-25" style="font-size: 3rem;"></i>
+                </div>
+                <div class="card-footer bg-danger py-1"></div>
+            </div>
+        </a>
+    </div>
+    
+    <div class="col-md-4">
+        <div class="card border-0 shadow-sm h-100 overflow-hidden">
+            <div class="card-body position-relative">
+                <h6 class="text-uppercase text-muted fw-bold small">Ganancia Neta</h6>
+                <h2 class="display-6 fw-bold text-primary mb-0">${{ ganancia_neta }}</h2>
+                
+                <div class="mt-2 text-primary small fw-bold">
+                    <i class="bi bi-wallet2 me-1"></i> Margen Actual
+                </div>
+
+                <i class="bi bi-piggy-bank position-absolute end-0 bottom-0 mb-2 me-3 text-primary opacity-25" style="font-size: 3rem;"></i>
+            </div>
+            <div class="card-footer bg-primary py-1"></div>
+        </div>
+    </div>
+</div>
+
+<div class="row mb-4 g-4">
+    
+    <div class="col-lg-8">
+        <div class="card border-0 shadow-sm h-100">
+            <div class="card-header bg-white border-0 py-3">
+                <h5 class="fw-bold mb-0 text-dark">
+                    <i class="bi bi-pie-chart-fill me-2" style="color: #aec90b;"></i>Balance Financiero
+                </h5>
+            </div>
+            <div class="card-body d-flex justify-content-center align-items-center" style="min-height: 300px;">
+                <div style="width: 70%; max-width: 400px;">
+                    <canvas id="miGrafico"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-4">
+        <div class="card border-0 shadow-sm h-100">
+            <div class="card-header bg-white border-0 py-3 d-flex justify-content-between align-items-center">
+                <h5 class="fw-bold mb-0">Equipo Reciente</h5>
+                <a href="{% url 'lista_colaboradores' %}" class="btn btn-sm btn-outline-dark rounded-pill" style="font-size: 0.8rem;">Ver todos</a>
+            </div>
+            <div class="card-body p-0">
+                <ul class="list-group list-group-flush">
+                    {% for colab in ultimos_colaboradores %}
+                    <li class="list-group-item d-flex align-items-center py-3 border-0 border-bottom">
+                        <div class="rounded-circle bg-light d-flex justify-content-center align-items-center me-3 text-secondary fw-bold shadow-sm" style="width: 40px; height: 40px; border: 2px solid #aec90b;">
+                            {{ colab.username|slice:":1"|upper }}
+                        </div>
+                        
+                        <div class="flex-grow-1">
+                            <h6 class="mb-0 fw-bold text-dark">{{ colab.first_name }} {{ colab.last_name }}</h6>
+                            <small class="text-muted" style="font-size: 0.8rem;">{{ colab.email }}</small>
+                        </div>
+
+                        {% for group in colab.groups.all %}
+                            {% if group.name == 'Gerente' %}
+                                <span class="badge bg-warning text-dark rounded-pill">Gerente</span>
+                            {% elif group.name == 'Bodeguero' %}
+                                <span class="badge bg-info text-dark rounded-pill">Bodega</span>
+                            {% else %}
+                                <span class="badge bg-dark rounded-pill">Admin</span>
+                            {% endif %}
+                        {% empty %}
+                            <span class="badge bg-light text-dark border">Nuevo</span>
+                        {% endfor %}
+                    </li>
+                    {% empty %}
+                    <li class="list-group-item text-center text-muted py-4">
+                        No hay colaboradores recientes.
+                    </li>
+                    {% endfor %}
+                </ul>
+            </div>
+            <div class="card-footer bg-white border-0 text-center py-3">
+                <a href="{% url 'crear_colaborador' %}" class="btn w-100 rounded-pill fw-bold text-dark" style="background-color: #aec90b;">
+                    <i class="bi bi-person-plus-fill me-2"></i> Nuevo Colaborador
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% if productos_bajo_stock %}
+<div class="card border-0 shadow-sm border-start border-5 border-warning mb-4">
+    <div class="card-body d-flex align-items-center justify-content-between">
+        <div>
+            <h5 class="fw-bold text-warning mb-1">
+                <i class="bi bi-exclamation-triangle-fill me-2"></i> Atención Requerida
+            </h5>
+            <p class="mb-0 text-muted">Hay <strong>{{ productos_bajo_stock|length }}</strong> productos por debajo del stock mínimo.</p>
+        </div>
+        <a href="{% url 'catalogo' %}" class="btn btn-outline-warning text-dark fw-bold rounded-pill">
+            Ver Inventario
+        </a>
+    </div>
+</div>
+{% endif %}
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    const ctx = document.getElementById('miGrafico');
+    
+    new Chart(ctx, {
+        type: 'doughnut', 
+        data: {
+            labels: ['Ingresos (Ventas)', 'Pérdidas (Mermas)'],
+            datasets: [{
+                data: [{{ total_ventas }}, {{ total_mermas }}],
+                backgroundColor: [
+                    '#aec90b', 
+                    '#dc3545'  
+                ],
+                hoverOffset: 15,
+                borderWidth: 0,
+            }]
+        },
+        options: {
+            responsive: true,
+            cutout: '75%', 
+            plugins: {
+                legend: {
+                    position: 'bottom',
+                    labels: {
+                        usePointStyle: true,
+                        padding: 20,
+                        font: { family: "'Poppins', sans-serif", size: 12 }
+                    }
+                }
+            },
+            animation: {
+                animateScale: true,
+                animateRotate: true
+            }
+        }
+    });
+</script>
+
+<style>
+    .hover-scale {
+        transition: transform 0.2s ease-in-out;
+    }
+    .hover-scale:hover {
+        transform: translateY(-5px);
+        cursor: pointer;
+    }
+</style>
+
+{% endblock %}
